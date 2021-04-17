@@ -1,66 +1,60 @@
+# libraries
 import time
-from threading import Thread
 import pandas as pd
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 import sys
-import getopt
 import argparse
 
-
+# read user args
 ap = argparse.ArgumentParser()
 
+# build matrix a
 mata=sys.argv[1]
 df = pd.read_csv(mata)
 a = df.to_numpy()
 
+# build matrix b
 matb=sys.argv[2]
-
 df = pd.read_csv(matb)
 b = df.to_numpy().T
 
-rowsA = len(a)
-rowsB = len(b)
+# take dimensions
+rowsA, colsA = a.shape
+rowsB, colsB = b.shape
 
-colsA = len(a[0])
-colsB = len(b[0])
+print('a: ', rowsA, 'x', colsA, '\nb: ', rowsB, 'x', colsB)
 
-print('a: ', rowsA, 'x', colsA)
-print('b: ', rowsB, 'x', colsB)
+# check if dimensions are compatible
+if colsA != rowsB:
+  print('Non multiplicable dimensions')
+  quit()
 
-# pool size
+pSize = int(sys.argv[3])
 
-poolsize = sys.argv[3]
-pSize = int(poolsize)
-
+# list to collect matrix multiplication results
 mat = []
 
-threads = list()
+# time starts
 start = time.perf_counter()
 
-def mult(X, Y):
-  mat.append(X@Y.T)
+# multiply row vs cols
+def mult(filaX):
+  for i in range(colsB): # columnas
+    mat.append(filaX@b[:,i])
 
-# # crear threads
-def createThread(poolSize):
-  for i in range(rowsA): # fila master
-      for j in range(colsB): # columna slave
-        x = Thread(target=mult, args=(a[int(rowsA/poolSize*i),:], b[:,int(colsB/poolSize*j)]))
-        threads.append(x)
-        x.start()
-  
-  # hacer join
-  for index, thread in enumerate(threads):
-    thread.join()
-
+# manage thread pool and trigger multiplication
 with ThreadPoolExecutor(max_workers=pSize) as ex:
-  ex.submit(createThread, rowsA)
+  ex.map(mult, a)
 
+# build matrix with collected results
 matC = np.array(mat).reshape(rowsA, colsB)
-# print(matC)
 
+# put the matrix into csv
 matc=sys.argv[4]
 np.savetxt(matc, matC, fmt='%4.0f', delimiter=',')
 
+# stop time
 end = time.perf_counter()
+
 print(f"Time taken: {round(end - start, 5)} seconds(s)")
