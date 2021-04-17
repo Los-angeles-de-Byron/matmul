@@ -88,7 +88,7 @@ Our answers of the dot product between rows and columns are stored in <i>mat</i>
 2. Try the program with the following command
 
 ```sh
- python matmul.py matA.csv matB.csv <threadpool_size>* <output_file>
+python matmul.py matA.csv matB.csv <threadpool_size>* <output_file>
 ```
 
 <i>*it should be an int value</i>
@@ -106,6 +106,7 @@ Our answers of the dot product between rows and columns are stored in <i>mat</i>
 ```
 
 <i>*it should be an int value</i>
+
 4. And there you go! The display must be the dimensions of each matrix and the elapsed time of the operation. You can go check your <output_file> to see the answer of the multiplication.
 
 ## Sources
