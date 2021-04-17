@@ -21,6 +21,7 @@
 3. Each matrix is composed of integers, the files do not have headers, the column separator is the character "," and each line indicates a new row
 
 ### Understanding the process behind a thread-pool
+
 A thread pool is a group of pre-instantiated, idle threads which stand ready to be given work. These are preferred over instantiating new threads for each task when there is a large number of short tasks to be done rather than a small number of long ones. This prevents having to incur the overhead of creating a thread a large number of times.
 
 ![alt text](https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Thread_pool.svg/1200px-Thread_pool.svg.png)
@@ -30,6 +31,9 @@ When the thread pool is created, it will either instantiate a certain number of 
 When the pool is handed a Task, it takes a thread from the container (or waits for one to become available if the container is empty), hands it a Task, and meets the barrier. This causes the idle thread to resume execution, invoking the execute() method of the Task it was given. Once execution is complete, the thread hands itself back to the pool to be put into the container for re-use and then meets its barrier, putting itself to sleep until the cycle repeats.
 
 ### Implementation
+
+<img src="matmul.png">
+
 It will vary by environment, but in simplified terms, you need the following:
 
 - A way to create threads and hold them in an idle state. This can be accomplished by having each thread wait at a barrier until the pool hands it work. 
@@ -42,11 +46,9 @@ It will vary by environment, but in simplified terms, you need the following:
 
 Before diving into our solution, we need to understand a basic concept when multipliying matrixes:
 
-If <img src="https://latex.codecogs.com/svg.image?A"/> is an <img src="https://latex.codecogs.com/svg.image?m&space;\times&space;n"/> matrix <img src="https://latex.codecogs.com/svg.image?B"/> is an <img src="https://latex.codecogs.com/svg.image?n&space;\times&space;p"/> matrix,
+If <img src="https://latex.codecogs.com/svg.image?A"/> is an <img src="https://latex.codecogs.com/svg.image?m&space;\times&space;n"/> matrix and <img src="https://latex.codecogs.com/svg.image?B"/> is an <img src="https://latex.codecogs.com/svg.image?n&space;\times&space;p"/> matrix,
 
-<img src="https://latex.codecogs.com/svg.image?\begin{pmatrix}&space;a_{11}&space;&&space;a_{12}&space;&&space;\cdots&space;&space;&&space;a_{1n}&space;\\&space;a_{21}&space;&&space;a_{22}&space;&&space;\cdots&space;&space;&&space;a_{2n}&space;\\&space;\vdots&space;&space;&&space;\vdots&space;&space;&&space;\ddots&space;&space;&&space;\vdots&space;&space;\\&space;a_{m1}&space;&&space;a_{m2}&space;&&space;\cdots&space;&space;&&space;a_{nm}&space;\\\end{pmatrix}" title="\begin{pmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{nm} \\\end{pmatrix}" />
-,
-<img src="https://latex.codecogs.com/svg.image?\begin{pmatrix}&space;b_{11}&space;&&space;b_{12}&space;&&space;\cdots&space;&space;&&space;b_{1p}&space;\\&space;b_{21}&space;&&space;b_{22}&space;&&space;\cdots&space;&space;&&space;b_{2p}&space;\\&space;\vdots&space;&space;&&space;\vdots&space;&space;&&space;\ddots&space;&space;&&space;\vdots&space;&space;\\&space;b_{m1}&space;&&space;b_{m2}&space;&&space;\cdots&space;&space;&&space;b_{np}&space;\\\end{pmatrix}" title="\begin{pmatrix} b_{11} & b_{12} & \cdots & b_{1p} \\ b_{21} & b_{22} & \cdots & b_{2p} \\ \vdots & \vdots & \ddots & \vdots \\ b_{m1} & b_{m2} & \cdots & b_{np} \\\end{pmatrix}" />
+<img src="https://latex.codecogs.com/svg.image?\begin{pmatrix}&space;a_{11}&space;&&space;a_{12}&space;&&space;\cdots&space;&space;&&space;a_{1n}&space;\\&space;a_{21}&space;&&space;a_{22}&space;&&space;\cdots&space;&space;&&space;a_{2n}&space;\\&space;\vdots&space;&space;&&space;\vdots&space;&space;&&space;\ddots&space;&space;&&space;\vdots&space;&space;\\&space;a_{m1}&space;&&space;a_{m2}&space;&&space;\cdots&space;&space;&&space;a_{nm}&space;\\\end{pmatrix}" title="\begin{pmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{nm} \\\end{pmatrix}" /> , <img src="https://latex.codecogs.com/svg.image?\begin{pmatrix}&space;b_{11}&space;&&space;b_{12}&space;&&space;\cdots&space;&space;&&space;b_{1p}&space;\\&space;b_{21}&space;&&space;b_{22}&space;&&space;\cdots&space;&space;&&space;b_{2p}&space;\\&space;\vdots&space;&space;&&space;\vdots&space;&space;&&space;\ddots&space;&space;&&space;\vdots&space;&space;\\&space;b_{m1}&space;&&space;b_{m2}&space;&&space;\cdots&space;&space;&&space;b_{np}&space;\\\end{pmatrix}" title="\begin{pmatrix} b_{11} & b_{12} & \cdots & b_{1p} \\ b_{21} & b_{22} & \cdots & b_{2p} \\ \vdots & \vdots & \ddots & \vdots \\ b_{m1} & b_{m2} & \cdots & b_{np} \\\end{pmatrix}" />
 
 the matrix product <img src="https://latex.codecogs.com/svg.image?&space;C&space;=&space;AB" title=" C = AB" /> is defined to be the <img src="https://latex.codecogs.com/svg.image?m&space;\times&space;p"/> matrix
 
