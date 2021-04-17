@@ -3,11 +3,20 @@ from threading import Thread
 import pandas as pd
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor
+import sys
+import getopt
+import argparse
 
-df = pd.read_csv('matA.csv')
+
+ap = argparse.ArgumentParser()
+
+mata=sys.argv[1]
+df = pd.read_csv(mata)
 a = df.to_numpy()
 
-df = pd.read_csv('matB.csv')
+matb=sys.argv[2]
+
+df = pd.read_csv(matb)
 b = df.to_numpy().T
 
 rowsA = len(a)
@@ -20,7 +29,9 @@ print('a: ', rowsA, 'x', colsA)
 print('b: ', rowsB, 'x', colsB)
 
 # pool size
-pSize = 500
+
+poolsize = sys.argv[3]
+pSize = int(poolsize)
 
 mat = []
 
@@ -48,7 +59,8 @@ with ThreadPoolExecutor(max_workers=pSize) as ex:
 matC = np.array(mat).reshape(rowsA, colsB)
 # print(matC)
 
-np.savetxt('matC.csv', matC, fmt='%4.0f', delimiter=',')
+matc=sys.argv[4]
+np.savetxt(matc, matC, fmt='%4.0f', delimiter=',')
 
 end = time.perf_counter()
 print(f"Time taken: {round(end - start, 5)} seconds(s)")
