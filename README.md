@@ -35,7 +35,7 @@ It will vary by environment, but in simplified terms, you need the following:
 - A way to create threads and hold them in an idle state. This can be accomplished by having each thread wait at a barrier until the pool hands it work. 
 - A container to store the created threads, such as a queue or any other structure that has a way to add a thread to the pool and pull one out.
 - A standard interface or abstract class for the threads to use in doing work. This might be an abstract class called Task with an execute() method that does the work and then returns.
-- 
+
 ## How it works
 
 ### Things to consider
