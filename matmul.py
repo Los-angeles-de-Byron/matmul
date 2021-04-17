@@ -11,13 +11,13 @@ ap = argparse.ArgumentParser()
 
 # build matrix a
 mata=sys.argv[1]
-df = pd.read_csv(mata)
+df = pd.read_csv(mata, header=None)
 a = df.to_numpy()
 
 # build matrix b
 matb=sys.argv[2]
-df = pd.read_csv(matb)
-b = df.to_numpy().T
+df = pd.read_csv(matb, header=None)
+b = df.to_numpy()
 
 # take dimensions
 rowsA, colsA = a.shape
