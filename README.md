@@ -32,8 +32,6 @@ When the pool is handed a Task, it takes a thread from the container (or waits f
 
 ### Implementation
 
-<img src="matmul.png">
-
 It will vary by environment, but in simplified terms, you need the following:
 
 - A way to create threads and hold them in an idle state. This can be accomplished by having each thread wait at a barrier until the pool hands it work. 
@@ -59,6 +57,8 @@ such that
 <img src="https://latex.codecogs.com/svg.image?c_{ij}&space;=&space;a_{i1}b_{1j}&space;&plus;&space;a_{i2}b_{2j}&space;&plus;&space;\cdots&space;&plus;&space;a_{in}b_{nj}&space;=&space;\sum_{k=1}^{n}a_{ik}b_{kj}" title="c_{ij} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{in}b_{nj} = \sum_{k=1}^{n}a_{ik}b_{kj}" />
 
 for <img src="https://latex.codecogs.com/svg.image?i=1,&space;\cdots&space;,&space;m&space;" title="i=1, \cdots , m " /> and <img src="https://latex.codecogs.com/svg.image?j=1,&space;\cdots&space;,&space;p" title="j=1, \cdots , p" />
+
+<img src="matmul.png">
 
 ### The thread pool
 
